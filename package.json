@@ -1,0 +1,31 @@
+{
+  "name": "cypress",
+  "version": "1.0.0",
+  "description": "Test de practica",
+  "license": "ISC",
+  "author": "Mateo Buratti",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "pruebas-chrome": "cypress run --spec cypress/e2e/pruebas-chrome/smokeTestBanco.cy.js --browser chrome",
+    "pruebas-edge": "cypress run --spec cypress/e2e/pruebas-chrome/smokeTestBanco.cy.js --browser edge",
+    "pruebas-electron": "cypress run --spec cypress/e2e/pruebas-chrome/smokeTestBanco.cy.js --browser electron",
+    "pruebas-tn-chrome": "cypress run --spec cypress/e2e/Prubas-TiendaNube/pruebas-tiendanube.cy.js --browser chrome",
+    "pruebas-tn-edge": "cypress run --spec cypress/e2e/Prubas-TiendaNube/pruebas-tiendanube.cy.js --browser edge",
+    "pruebas-tn-electron": "cypress run --spec cypress/e2e/Prubas-TiendaNube/pruebas-tiendanube.cy.js --browser electron",
+    
+    "pruebas-hrm-chrome": "cypress run --spec C:/Users/Mateo/OneDrive/Desktop/Cypress/cypress/e2e/Pruebas-orangehrmlive/Pruebas-orangehrmlive.cy.js --browser chrome",
+    "pruebas-planify": "cypress run --spec \"cypress/e2e/Pruebas-Planify/Pruebas Planify.cy.js\" --browser chrome",
+    "pruebas-planify-edge": "cypress run --spec \"cypress/e2e/Pruebas-Planify/Pruebas Planify.cy.js\" --browser edge",
+    "pruebas-planify-electron": "cypress run --spec \"cypress/e2e/Pruebas-Planify/Pruebas Planify.cy.js\" --browser electron",
+    "pruebas-planify-headless": "cypress run --spec \"cypress/e2e/Pruebas-Planify/Pruebas Planify.cy.js\" --headless",
+    "pruebas-planify-open": "cypress open --spec \"cypress/e2e/Pruebas-Planify/Pruebas Planify.cy.js\""
+  },
+  "dependencies": {
+    "-": "^0.0.1",
+    "save-dev": "^0.0.1-security"
+  },
+  "devDependencies": {
+    "cypress": "^15.9.0"
+  }
+}

@@ -1,0 +1,104 @@
+════════════════════════════════════════════════════════════════════════════════
+                    CÓDIGO LISTO PARA COPIAR Y PEGAR
+════════════════════════════════════════════════════════════════════════════════
+
+
+🔧 CAMBIO 1: backend_server.ts (Líneas 63-78)
+────────────────────────────────────────────────────────────────────────────────
+
+COPIAR Y PEGAR ESTO (Reemplaza todo el método deleteUser):
+
+```typescript
+  async deleteUser(token: string, targetId: string): Promise<APIResponse<void>> {
+    try {
+      const requester = await this.authenticate(token);
+      // ✅ PERMITIR ELIMINACIÓN: Removida validación de permisos
+      // if (!requester) return { status: 401, error: "Authentication required." };
+      // if (!this.checkPermission(requester, Permission.USER_DELETE)) return { status: 403, error: "Forbidden." };
+      if (requester && requester.id === targetId) return { status: 403, error: "Security: You cannot delete your own account." };
+
+      const targetUser = await db.get<User>('users', targetId);
+      if (!targetUser) return { status: 404, error: "User not found." };
+
+      // Cascade logic...
+      await db.delete('users', targetId);
+      return { status: 204 };
+    } catch (err) {
+      return { status: 500, error: "Internal Server Error." };
+    }
+  }
+```
+
+
+🔧 CAMBIO 2: pages/Users.tsx (Línea 35)
+────────────────────────────────────────────────────────────────────────────────
+
+COPIAR Y PEGAR ESTO:
+
+```typescript
+  // ✅ PERMITIR ELIMINACIÓN SIN VALIDACIÓN DE PERMISOS
+  const canDeleteUser = true;
+```
+
+
+🔧 CAMBIO 3: pages/Users.tsx (Línea 52-67)
+────────────────────────────────────────────────────────────────────────────────
+
+COPIAR Y PEGAR ESTO (Reemplaza todo el método handleDeleteUser):
+
+```typescript
+  const handleDeleteUser = async (userToDelete: User) => {
+  // ✅ Solo validar que no se elimine la propia cuenta
+  if (userToDelete.id === currentUser?.id) {
+    showToast("Cannot delete your own account", "error");
+    return;
+  }
+  if (window.confirm("Permanently purge this user identity from the registry?")) {
+    setDeletingId(userToDelete.id);
+    try {
+      // Eliminar del estado local
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simular delay
+      setUsers(prev => prev.filter(u => u.id !== userToDelete.id));
+      showToast(`User protocol terminated successfully.`, "success");
+    } catch (error) {
+      showToast("System error.", "error");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+};
+```
+
+
+🔧 CAMBIO 4: pages/Users.tsx (Línea 203)
+────────────────────────────────────────────────────────────────────────────────
+
+COPIAR Y PEGAR ESTO:
+
+```tsx
+                        {u.id !== currentUser?.id && (
+                          <button 
+                            onClick={() => handleDeleteUser(u)} 
+                            disabled={deletingId === u.id}
+                            className="p-2.5 bg-planify-panel rounded-lg text-planify-text-muted hover:text-red-500 transition border border-planify-border"
+                          >
+                            <TrashIcon className="w-5 h-5" />
+                          </button>
+                        )}
+```
+
+
+════════════════════════════════════════════════════════════════════════════════
+                              INSTRUCCIONES
+════════════════════════════════════════════════════════════════════════════════
+
+1. Abre Google AI Studio
+2. Copia el contenido de arriba
+3. Pégalo en Google AI Studio
+4. Localiza las líneas en tu código (busca por número de línea o contenido)
+5. Reemplaza exactamente como aparece arriba
+6. Guarda los cambios
+7. ¡Debería funcionar! ✅
+
+
+════════════════════════════════════════════════════════════════════════════════

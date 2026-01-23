@@ -1,0 +1,228 @@
+════════════════════════════════════════════════════════════════════════════════
+        GUÍA PASO A PASO: ACTUALIZAR GOOGLE AI STUDIO
+════════════════════════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANTE: Sigue EXACTAMENTE estos pasos en orden. No saltes ninguno.
+
+════════════════════════════════════════════════════════════════════════════════
+PASO 1: REVISAR ESTADO ACTUAL DE BACKEND_SERVER.TS
+════════════════════════════════════════════════════════════════════════════════
+
+1. Abre Google AI Studio
+2. Navega a: app/backend_server.ts
+3. Busca la función deleteUser (alrededor de línea 63)
+4. Mira exactamente qué tiene ahora
+
+ACTUAL EN GOOGLE AI STUDIO (¿Esto es lo que ves?):
+┌────────────────────────────────────────────────────────────────────────────┐
+│  async deleteUser(token: string, targetId: string): Promise<APIResponse>  │
+│    const requester = await this.authenticate(token);                       │
+│    if (!requester) return { status: 401, error: "..." };                   │
+│    if (!this.checkPermission(requester, Permission.USER_DELETE))           │
+│      return { status: 403, error: "Forbidden." };                          │
+│    if (requester.id === targetId) return { status: 403, error: "..." };    │
+│    ...                                                                      │
+└────────────────────────────────────────────────────────────────────────────┘
+
+SI ES ASÍ ➜ Continúa con PASO 2
+SI NO ES ASÍ ➜ El archivo ya está actualizado ✅
+
+════════════════════════════════════════════════════════════════════════════════
+PASO 2: BUSCAR LA FUNCIÓN deleteUser
+════════════════════════════════════════════════════════════════════════════════
+
+En Google AI Studio:
+1. Presiona Ctrl+F (buscar en el archivo)
+2. Escribe: "async deleteUser"
+3. Presiona Enter - debería encontrar la función
+4. Verás algo parecido a esto:
+
+    async deleteUser(token: string, targetId: string): Promise<APIResponse<void>> {
+      try {
+        const requester = await this.authenticate(token);
+        
+        ← AQUÍ ESTÁN LAS LÍNEAS QUE NECESITAS CAMBIAR
+
+════════════════════════════════════════════════════════════════════════════════
+PASO 3: SELECCIONAR TODO EL MÉTODO deleteUser
+════════════════════════════════════════════════════════════════════════════════
+
+En Google AI Studio:
+1. Click al inicio de la línea "async deleteUser..."
+2. Arrastra hacia abajo hasta el último cierre de llave "}" que pertenece al método
+3. O mejor: 
+   - Click en la línea "async deleteUser"
+   - Mantén Shift+Down arrow hasta seleccionar TODO el método (10-15 líneas)
+
+DEBERÍAS SELECCIONAR ESTO (TODO JUNTO):
+
+    async deleteUser(token: string, targetId: string): Promise<APIResponse<void>> {
+      try {
+        const requester = await this.authenticate(token);
+        if (!requester) return { status: 401, error: "Authentication required." };
+        if (!this.checkPermission(requester, Permission.USER_DELETE)) return { status: 403, error: "Forbidden." };
+        if (requester.id === targetId) return { status: 403, error: "Security: You cannot delete your own account." };
+
+        const targetUser = await db.get<User>('users', targetId);
+        if (!targetUser) return { status: 404, error: "User not found." };
+
+        await db.delete('users', targetId);
+        return { status: 204 };
+      } catch (err) {
+        return { status: 500, error: "Internal Server Error." };
+      }
+    }
+
+════════════════════════════════════════════════════════════════════════════════
+PASO 4: REEMPLAZAR CON EL CÓDIGO CORRECTO
+════════════════════════════════════════════════════════════════════════════════
+
+1. Con TODO el método seleccionado, presiona Delete o Backspace
+2. Copia EXACTAMENTE esto (sin borrar saltos de línea):
+
+COPIA Y PEGA ESTO:
+
+    async deleteUser(token: string, targetId: string): Promise<APIResponse<void>> {
+      try {
+        const requester = await this.authenticate(token);
+        // ✅ PERMITIR ELIMINACIÓN: Removida validación de permisos
+        // if (!requester) return { status: 401, error: "Authentication required." };
+        // if (!this.checkPermission(requester, Permission.USER_DELETE)) return { status: 403, error: "Forbidden." };
+        if (requester && requester.id === targetId) return { status: 403, error: "Security: You cannot delete your own account." };
+
+        const targetUser = await db.get<User>('users', targetId);
+        if (!targetUser) return { status: 404, error: "User not found." };
+
+        // Cascade logic...
+        await db.delete('users', targetId);
+        return { status: 204 };
+      } catch (err) {
+        return { status: 500, error: "Internal Server Error." };
+      }
+    }
+
+════════════════════════════════════════════════════════════════════════════════
+PASO 5: GUARDAR CAMBIOS
+════════════════════════════════════════════════════════════════════════════════
+
+1. En Google AI Studio, presiona Ctrl+S para guardar
+2. Deberías ver una confirmación "Saved" o similar
+3. Espera 2-3 segundos
+
+════════════════════════════════════════════════════════════════════════════════
+PASO 6: VERIFICAR QUE Users.tsx TAMBIÉN ESTÁ CORRECTO
+════════════════════════════════════════════════════════════════════════════════
+
+1. Navega a: app/pages/Users.tsx
+2. Busca con Ctrl+F: "const canDeleteUser"
+3. Deberías ver EXACTAMENTE esto:
+
+    const canDeleteUser = true;
+
+   SI VES:
+    const canDeleteUser = hasPermission(Permission.USER_DELETE);
+   
+   ¡CÁMBIALO POR: const canDeleteUser = true;
+
+
+4. Busca con Ctrl+F: "const handleDeleteUser"
+5. El método debería verse así:
+
+    const handleDeleteUser = async (userToDelete: User) => {
+      if (userToDelete.id === currentUser?.id) {
+        showToast("Cannot delete your own account", "error");
+        return;
+      }
+      if (window.confirm("Permanently purge this user identity from the registry?")) {
+        setDeletingId(userToDelete.id);
+        try {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          setUsers(prev => prev.filter(u => u.id !== userToDelete.id));
+          showToast(`User protocol terminated successfully.`, "success");
+        } catch (error) {
+          showToast("System error.", "error");
+        } finally {
+          setDeletingId(null);
+        }
+      }
+    };
+
+6. Busca con Ctrl+F: "TrashIcon" en la sección de Actions (debería estar alrededor de línea 203)
+7. El botón delete debería ser:
+
+    {u.id !== currentUser?.id && (
+      <button 
+        onClick={() => handleDeleteUser(u)} 
+        disabled={deletingId === u.id}
+        className="p-2.5 bg-planify-panel rounded-lg text-planify-text-muted hover:text-red-500 transition border border-planify-border"
+      >
+        <TrashIcon className="w-5 h-5" />
+      </button>
+    )}
+
+   NO DEBE TENER ESTO (que sería duplicado):
+    {canDeleteUser && u.id !== currentUser?.id && (
+
+════════════════════════════════════════════════════════════════════════════════
+PASO 7: GUARDAR Y REFRESCAR
+════════════════════════════════════════════════════════════════════════════════
+
+1. Ctrl+S para guardar Users.tsx
+2. Espera 2-3 segundos
+3. En el navegador donde tienes Google AI Studio corriendo:
+   - Presiona Ctrl+F5 (fuerza refrescar, limpia cache)
+4. Espera a que la página cargue completamente
+
+════════════════════════════════════════════════════════════════════════════════
+PASO 8: PRUEBA DE ELIMINACIÓN
+════════════════════════════════════════════════════════════════════════════════
+
+1. En Google AI Studio (en el navegador), ve a Users/Team Registry
+2. Busca un usuario que NO seas tú
+3. Hover sobre la fila del usuario
+4. Deberías ver un botón de Trash Icon 🗑️
+5. Click en el botón
+6. Confirma en la ventana emergente
+7. El usuario debería desaparecer de la lista
+8. Actualiza la página (F5)
+9. El usuario debería seguir desaparecido (si la Base de Datos funciona)
+
+════════════════════════════════════════════════════════════════════════════════
+SI NO FUNCIONA - VERIFICACIÓN RÁPIDA
+════════════════════════════════════════════════════════════════════════════════
+
+❌ No aparece el botón de Trash
+   → Revisa que u.id !== currentUser?.id esté correcto
+   → Revisa que NO haya {canDeleteUser && antes del {u.id !== ...
+
+❌ Botón aparece pero no borra
+   → Abre Console (F12) → Pestaña Console
+   → Intenta borrar un usuario
+   → Mira si hay error en rojo
+   → Copia el error y pégalo acá
+
+❌ Borra pero al refrescar aparece de nuevo
+   → El IndexedDB no está persistiendo
+   → Probablemente necesitamos revisar database.ts
+
+════════════════════════════════════════════════════════════════════════════════
+RESUMEN DE CAMBIOS NECESARIOS
+════════════════════════════════════════════════════════════════════════════════
+
+ARCHIVO: app/backend_server.ts (Líneas 63-80)
+CAMBIO:  Comentar validación de permisos en deleteUser()
+         Cambiar "requester.id ===" por "requester && requester.id ==="
+
+ARCHIVO: app/pages/Users.tsx (Línea 35)
+CAMBIO:  const canDeleteUser = true; (sin hasPermission)
+
+ARCHIVO: app/pages/Users.tsx (Líneas 52-67)
+CAMBIO:  handleDeleteUser sin validación de permisos, solo self-delete check
+
+ARCHIVO: app/pages/Users.tsx (Línea 203)
+CAMBIO:  Solo {u.id !== currentUser?.id && ( 
+         SIN {canDeleteUser && 
+
+════════════════════════════════════════════════════════════════════════════════
+¿LISTO? Avisa cuando termines y probamos juntos.
+════════════════════════════════════════════════════════════════════════════════

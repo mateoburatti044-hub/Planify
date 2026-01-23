@@ -1,0 +1,175 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    🚀 PLANIFY - QUICK START (5 MINUTOS)
+═══════════════════════════════════════════════════════════════════════════════
+
+✨ TODO LO QUE NECESITAS PARA EMPEZAR:
+
+1️⃣  ABRIR POWERSHELL Y EJECUTAR:
+────────────────────────────────────────────────────────────────────────────
+
+    cd "c:\Users\Mateo\OneDrive\Desktop\Cypress\cypress\e2e\Pruebas-Planify\app"
+    npm install
+    npm run dev
+
+    ✅ La app abrirá en: http://localhost:5173
+
+
+2️⃣  EJECUTAR TESTS DE CYPRESS:
+────────────────────────────────────────────────────────────────────────────
+
+    # En otra terminal (desde la carpeta Cypress):
+    cd "c:\Users\Mateo\OneDrive\Desktop\Cypress"
+    npx cypress open
+
+    ✅ Selecciona: Pruebas Planify.cy.js
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                          🔑 PUNTOS CLAVE
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ SIN BACKEND REAL
+   - Los datos se guardan en IndexedDB (navegador)
+   - Todo funciona localmente
+   - NO necesita servidor
+
+✅ CÓDIGO JAVASCRIPT PURO
+   - Fácil de entender y modificar
+   - Sin dependencias complicadas
+   - Bien documentado
+
+✅ TESTS LISTOS
+   - Cypress ya tiene todo configurado
+   - Pruebas de CRUD completas
+   - Tests de persistencia
+
+✅ DOCUMENTACIÓN COMPLETA
+   - README_JAVASCRIPT.md (instrucciones)
+   - GUIA_MODIFICACION.js (cómo extender)
+   - DOCUMENTACION.js (ejemplos de API)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                        📚 ARCHIVOS IMPORTANTES
+═══════════════════════════════════════════════════════════════════════════════
+
+PARA ENTENDER LA APP:
+  └─ app/README_JAVASCRIPT.md        (Lee esto primero)
+
+PARA USAR LA API:
+  └─ app/src/DOCUMENTACION.js        (Ejemplos de código)
+
+PARA MODIFICAR:
+  └─ app/GUIA_MODIFICACION.js        (Cómo agregar features)
+
+PARA TESTEAR:
+  └─ Pruebas Planify.cy.js           (Tests listos para ejecutar)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                      🎯 EJEMPLO DE USO (CÓDIGO)
+═══════════════════════════════════════════════════════════════════════════════
+
+// Obtener todos los usuarios:
+import { api } from './src/api.js';
+
+const response = await api.getUsers();
+console.log(response.data); // Imprime lista de usuarios
+
+// Crear un usuario:
+const newUser = await api.createUser({
+  firstName: 'Juan',
+  lastName: 'Pérez',
+  email: 'juan@example.com',
+  password_hash: 'password123',
+  role: 'DEVELOPER',
+  phone: '+34 123 456 789',
+  address: 'Calle Principal 123'
+});
+
+// Eliminar un usuario (¡AHORA SIN BACKEND!):
+const deleted = await api.deleteUser('user_id');
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                    💾 DATOS EN IndexedDB (Persistente)
+═══════════════════════════════════════════════════════════════════════════════
+
+Los datos se guardan automáticamente en:
+  Database: QA_PRO_PROD_DB
+
+Stores:
+  - users:         Información de usuarios
+  - projects:      Información de proyectos
+  - tasks:         Información de tareas
+  - notifications: Notificaciones
+
+✅ Los datos persisten entre sesiones del navegador
+✅ No se pierden al cerrar y abrir nuevamente la app
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                         🧪 COMANDOS ÚTILES
+═══════════════════════════════════════════════════════════════════════════════
+
+Desarrollo:
+  npm run dev           → Inicia en localhost:5173
+  npm run build         → Compila para producción
+  npm run preview       → Vista previa del build
+
+Tests:
+  npx cypress open      → Abre interfaz gráfica
+  npx cypress run       → Ejecuta tests sin UI
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                       ❓ PREGUNTAS FRECUENTES
+═══════════════════════════════════════════════════════════════════════════════
+
+P: ¿Dónde se guardan los datos?
+R: En IndexedDB del navegador, automáticamente.
+
+P: ¿Qué pasa si recargo la página?
+R: Los datos siguen ahí, están persistidos.
+
+P: ¿Necesito un servidor?
+R: NO, todo funciona localmente en el navegador.
+
+P: ¿Cómo agrego nuevas funcionalidades?
+R: Lee app/GUIA_MODIFICACION.js para ejemplos paso a paso.
+
+P: ¿Por qué algunos tests fallan?
+R: Asegúrate de que npm install y npm run dev están activos.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                        📞 ESTRUCTURA FINAL
+═══════════════════════════════════════════════════════════════════════════════
+
+Cypress/
+  ├── cypress.config.js
+  ├── package.json
+  └── cypress/
+      └── e2e/
+          └── Pruebas-Planify/
+              ├── app/                    (Código de la app)
+              │   ├── src/
+              │   │   ├── api.js          (API Mock)
+              │   │   ├── database.js     (IndexedDB)
+              │   │   ├── types.js        (Tipos)
+              │   │   └── DOCUMENTACION.js
+              │   ├── README_JAVASCRIPT.md
+              │   ├── GUIA_MODIFICACION.js
+              │   └── INICIO_RAPIDO.bat
+              │
+              ├── Pruebas Planify.cy.js   (Tests)
+              └── RESUMEN_CAMBIOS.txt
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ LISTO PARA USAR
+
+Comienza con: npm run dev
+
+═══════════════════════════════════════════════════════════════════════════════

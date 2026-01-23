@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planify - Simplify, Organize, Succeed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              planify: {
+                bg: '#0B0E14',
+                container: '#111827',
+                card: '#161B22',
+                panel: '#1F2933',
+                hover: '#262C36',
+                accent: {
+                  dark: '#4C1D95',
+                  DEFAULT: '#5B21B6',
+                  hover: '#6D28D9',
+                  light: '#7C3AED',
+                  glow: '#A78BFA'
+                },
+                text: {
+                  primary: '#F9FAFB',
+                  secondary: '#CBD5E1',
+                  muted: '#6B7280'
+                },
+                border: '#2A303C'
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            boxShadow: {
+              'accent-glow': '0 0 20px rgba(91, 33, 182, 0.25)',
+              'card-hover': '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 10px rgba(91, 33, 182, 0.1)',
+            },
+            animation: {
+              'slide-left': 'slideLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'fade-in': 'fadeIn 0.2s ease-out forwards',
+            },
+            keyframes: {
+              slideLeft: {
+                '0%': { transform: 'translateX(100%)' },
+                '100%': { transform: 'translateX(0)' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "@heroicons/react/": "https://esm.sh/@heroicons/react@^2.2.0/"
+  }
+}
+</script>
+<style>
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0B0E14; }
+  ::-webkit-scrollbar-thumb { background: #1F2933; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #5B21B6; }
+  body { 
+    background-color: #0B0E14; 
+    color: #F9FAFB; 
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+</style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="antialiased font-sans">
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
