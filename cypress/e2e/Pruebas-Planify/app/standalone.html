@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planify QA v2.0.0</title>
+    <script crossorigin src="https://unpkg.com/react@19/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@19/umd/react-dom.production.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; font-family: Arial, sans-serif; }
+        body { 
+            background-color: #0B0E14;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 20px;
+        }
+        h1 { font-size: 48px; margin-bottom: 20px; }
+        .subtitle { font-size: 18px; color: #888; margin-bottom: 40px; }
+        .status-box {
+            background-color: #161B22;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #5B21B6;
+            text-align: left;
+        }
+        .status-box h2 { margin-bottom: 20px; }
+        .status-box ul { list-style: none; }
+        .status-box li { margin: 10px 0; }
+        .login-form {
+            background-color: #161B22;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #5B21B6;
+            margin-top: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #5B21B6;
+            background-color: #0B0E14;
+            color: #fff;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #5B21B6;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .login-form button:hover {
+            background-color: #7C3AED;
+        }
+        .dashboard {
+            display: none;
+            text-align: left;
+        }
+        .dashboard.active {
+            display: block;
+        }
+        .nav-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #5B21B6;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .nav-button:hover {
+            background-color: #7C3AED;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        // Estado de la aplicación
+        const state = {
+            user: null,
+            projects: [],
+            tasks: [],
+            users: []
+        };
+
+        // Datos de prueba
+        const sampleUsers = [
+            { id: 1, name: 'Admin', email: 'super@admin.com', role: 'admin' }
+        ];
+
+        const sampleProjects = [
+            { id: 1, name: 'Proyecto 1', description: 'Descripción del proyecto 1', status: 'active' },
+            { id: 2, name: 'Proyecto 2', description: 'Descripción del proyecto 2', status: 'active' }
+        ];
+
+        // Componente Login
+        const LoginPage = ({ onLogin }) => {
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                onLogin({ id: 1, email: email, role: 'admin', name: 'Admin' });
+            };
+
+            return `
+                <div class="container">
+                    <h1>✅ Planify QA v2.0.0</h1>
+                    <p class="subtitle">Sistema de Gestión de Pruebas</p>
+                    <div class="login-form">
+                        <h2>Iniciar Sesión</h2>
+                        <form onsubmit="handleLoginSubmit(event)">
+                            <input type="email" id="email" placeholder="Email" value="super@admin.com" required>
+                            <input type="password" id="password" placeholder="Contraseña" required>
+                            <button type="submit">Entrar</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Componente Dashboard
+        const Dashboard = ({ user, onLogout }) => {
+            return `
+                <div class="dashboard active">
+                    <h1>Bienvenido, ${user.name}</h1>
+                    <div style="margin: 20px 0;">
+                        <button class="nav-button" onclick="showProjects()">Proyectos</button>
+                        <button class="nav-button" onclick="showTasks()">Tareas</button>
+                        <button class="nav-button" onclick="showUsers()">Usuarios</button>
+                        <button class="nav-button" onclick="logout()">Cerrar Sesión</button>
+                    </div>
+                    <div id="content" style="margin-top: 20px;">
+                        <div class="status-box">
+                            <h2>Estado del Sistema</h2>
+                            <ul>
+                                <li>✅ React 19 cargado</li>
+                                <li>✅ Base de datos: LocalStorage</li>
+                                <li>✅ Usuario: ${user.email}</li>
+                                <li>✅ Sistema operacional</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Funciones globales
+        window.handleLoginSubmit = function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            state.user = { id: 1, email: email, role: 'admin', name: 'Admin' };
+            render();
+        };
+
+        window.logout = function() {
+            state.user = null;
+            render();
+        };
+
+        window.showProjects = function() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="status-box">
+                    <h2>Proyectos</h2>
+                    <ul style="list-style: none;">
+                        ${sampleProjects.map(p => `<li>✓ ${p.name} - ${p.status}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        };
+
+        window.showTasks = function() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="status-box">
+                    <h2>Tareas</h2>
+                    <p>No hay tareas registradas aún</p>
+                </div>
+            `;
+        };
+
+        window.showUsers = function() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="status-box">
+                    <h2>Usuarios</h2>
+                    <ul style="list-style: none;">
+                        ${sampleUsers.map(u => `<li>✓ ${u.name} (${u.email})</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        };
+
+        // Renderizar
+        function render() {
+            const root = document.getElementById('root');
+            if (state.user) {
+                root.innerHTML = Dashboard({ user: state.user, onLogout: () => logout() });
+            } else {
+                root.innerHTML = LoginPage({ onLogin: (user) => {
+                    state.user = user;
+                    render();
+                } });
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', render);
+    </script>
+</body>
+</html>

@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Role, Permission } from '../types';
 import { api } from '../services/mockApi';
+import { initializationService } from '../services/initializationService';
 
 interface AuthContextType {
   user: User | null;
@@ -19,40 +20,49 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const jwt = localStorage.getItem('qa_pro_jwt');
-    const savedUser = localStorage.getItem('qa_pro_session');
-    
-    if (jwt && savedUser) {
+    const initApp = async () => {
       try {
-        const userData = JSON.parse(savedUser);
-        // Sync check with "server" registry
-        api.getUsers().then(res => {
-          if (res.status === 200) {
-            const current = res.data?.find(u => u.id === userData.id);
-            if (current) {
-              setUser(current);
-              localStorage.setItem('qa_pro_session', JSON.stringify(current));
+        // Inicializar base de datos con backup si es necesario
+        await initializationService.initializeDatabase();
+        
+        const jwt = localStorage.getItem('qa_pro_jwt');
+        const savedUser = localStorage.getItem('qa_pro_session');
+        
+        if (jwt && savedUser) {
+          try {
+            const userData = JSON.parse(savedUser);
+            // Sync check with "server" registry
+            const res = await api.getUsers();
+            if (res.status === 200) {
+              const current = res.data?.find(u => u.id === userData.id);
+              if (current) {
+                setUser(current);
+                localStorage.setItem('qa_pro_session', JSON.stringify(current));
+              } else {
+                // Usuario no encontrado, logout
+                localStorage.removeItem('qa_pro_jwt');
+                localStorage.removeItem('qa_pro_session');
+              }
             } else {
-              logout();
+              // Error en la respuesta, logout
+              localStorage.removeItem('qa_pro_jwt');
+              localStorage.removeItem('qa_pro_session');
             }
-          } else {
-            logout();
+          } catch (e) {
+            // Error en la sincronización, logout
+            localStorage.removeItem('qa_pro_jwt');
+            localStorage.removeItem('qa_pro_session');
           }
-          setIsLoading(false);
-        }).catch(() => {
-          logout();
-          setIsLoading(false);
-        });
-      } catch (e) {
-        logout();
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error en inicialización:', error);
         setIsLoading(false);
       }
-    } else {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const login = async (email: string, password?: string) => {
+    };
+    
+    initApp();
+  }, []);  const login = async (email: string, password?: string) => {
     try {
       const response = await api.login(email, password);
       if (response.data) {

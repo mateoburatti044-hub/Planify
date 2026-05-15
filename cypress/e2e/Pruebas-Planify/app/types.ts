@@ -44,6 +44,19 @@ export enum TaskCategory {
   RESEARCH = 'RESEARCH'
 }
 
+export interface TaskAttachment {
+  id: string;
+  taskId: string;
+  fileName: string;
+  fileType: 'image' | 'video' | 'document';
+  fileSize: number;
+  fileData: string; // base64 encoded data
+  mimeType: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  description?: string;
+}
+
 export interface TaskComment {
   id: string;
   userId: string;
@@ -101,6 +114,7 @@ export interface Task {
   updatedAt: string;
   comments?: TaskComment[];
   activity?: TaskActivity[];
+  attachments?: TaskAttachment[];
 }
 
 export interface Notification {

@@ -1,0 +1,91 @@
+# 🎯 GUÍA RÁPIDA - PERSISTENCIA Y EVIDENCIAS EN PLANIFY
+
+## 🚀 EN 30 SEGUNDOS
+
+### Lo que hicimos:
+1. ✅ **Backup automático** - Tus datos nunca se pierden
+2. ✅ **Evidencias QA** - Carga imágenes y videos en tareas
+3. ✅ **Exportar/Importar** - Descarga y restaura tus datos cuando quieras
+
+---
+
+## ⚡ ACCIONES RÁPIDAS
+
+### Cargar una evidencia:
+```
+Tarea → Bajar hasta "Evidencias de QA" → Click "Agregar Evidencia" → Seleccionar archivo → Guardar tarea
+```
+
+### Descargar backup:
+```
+Settings (⚙️) → "Persistencia de Datos" → "Descargar Backup"
+```
+
+### Restaurar desde backup:
+```
+Settings (⚙️) → "Persistencia de Datos" → "Restaurar Backup" → Seleccionar archivo .json
+```
+
+---
+
+## 📁 ARCHIVOS NUEVOS CREADOS
+
+```
+services/
+  ├─ persistenceService.ts     (Backup automático)
+  └─ attachmentService.ts      (Gestión de archivos)
+
+components/
+  └─ EvidenceManager.tsx       (UI para cargar evidencias)
+```
+
+---
+
+## 🔄 FLUJO AUTOMÁTICO
+
+```
+Creas/Editas Tarea
+        ↓
+Agregas Evidencias (opcional)
+        ↓
+Guardas Tarea (click Deploy)
+        ↓
+API guarda automáticamente
+        ↓
+persistenceService HACE BACKUP
+        ↓
+localStorage guardado ✓
+```
+
+---
+
+## 💾 TIPOS DE ARCHIVOS SOPORTADOS
+
+| Tipo | Extensiones | Tamaño Max |
+|------|-------------|-----------|
+| 📷 Imagen | jpg, png, gif, webp | 50MB |
+| 🎥 Video | mp4, webm, mov, avi, mkv | 50MB |
+| 📄 Documento | pdf, doc, docx, xlsx, txt | 50MB |
+
+---
+
+## ⚠️ IMPORTANTE
+
+- Datos se guardan en **localStorage del navegador** (local, no en servidor)
+- Descargar backup regularmente es importante
+- Si cambias navegador/borras datos → se pierden (pero puedes restaurar desde backup)
+
+---
+
+## 🆘 PROBLEMAS COMUNES
+
+| Problema | Solución |
+|----------|----------|
+| No aparece la evidencia | Guarda la tarea después de agregarla |
+| Archivo muy grande | Comprime a menos de 50MB |
+| Perdí todos mis datos | Restaura desde backup en Settings |
+| No veo las evidencias | Recarga la página (F5) |
+
+---
+
+*Para guía completa: ver GUIA_PERSISTENCIA_EVIDENCIAS.md*

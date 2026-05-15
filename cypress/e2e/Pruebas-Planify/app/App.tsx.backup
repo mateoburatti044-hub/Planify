@@ -1,0 +1,75 @@
+
+import React, { Suspense, lazy, useState, useEffect } from 'react';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { Layout } from './components/Layout';
+
+// Lazy load pages
+const Login = lazy(() => import('./pages/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+
+const LoadingFallback = () => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+    backgroundColor: '#0B0E14',
+    color: '#fff',
+    fontFamily: 'Arial, sans-serif'
+  }}>
+    <div style={{ textAlign: 'center' }}>
+      <div style={{ marginBottom: '20px', fontSize: '24px' }}>🔄 Cargando...</div>
+      <p>Inicializando la aplicación...</p>
+    </div>
+  </div>
+);
+
+const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
+  const { user, isLoading } = useAuth();
+  
+  if (isLoading) return <LoadingFallback />;
+  if (!user) return <Navigate to="/login" replace />;
+  
+  return <Layout>{children}</Layout>;
+};
+
+const AppContent: React.FC = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    console.log('✅ AppContent mounted');
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <LoadingFallback />;
+  }
+
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
+  );
+};
+
+const App: React.FC = () => {
+  console.log('🚀 App component rendering');
+  
+  return (
+    <ErrorBoundary>
+      <AuthProvider>
+        <HashRouter>
+          <AppContent />
+        </HashRouter>
+      </AuthProvider>
+    </ErrorBoundary>
+  );
+};
+
+export default App;

@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../services/mockApi';
-import { Task, TaskStatus, Priority, Project, User } from '../types';
+import { Task, TaskStatus, Priority, Project, User, TaskAttachment } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Layout';
 import { ArrowLeftIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { Input, Select, TextArea, PrimaryButton, SecondaryButton } from '../components/FormElements';
+import { EvidenceManager } from '../components/EvidenceManager';
+import { persistenceService } from '../services/persistenceService';
 
 const TaskForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +17,9 @@ const TaskForm: React.FC = () => {
   const { user } = useAuth();
   const { showToast } = useToast();
   const isEdit = !!id;
+  
+  // Generar ID temporal para nuevas tareas (para EvidenceManager)
+  const tempTaskId = id || `temp-${Date.now()}`;
 
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
@@ -31,7 +36,8 @@ const TaskForm: React.FC = () => {
     priority: Priority.MEDIUM,
     assigneeId: '',
     reporterId: user?.id || '',
-    dueDate: new Date().toISOString().split('T')[0]
+    dueDate: new Date().toISOString().split('T')[0],
+    attachments: []
   });
 
   useEffect(() => {
@@ -86,6 +92,15 @@ const TaskForm: React.FC = () => {
         : await api.createTask(formData);
 
       if (response.status < 300) {
+        // Guardar backup después de crear/actualizar tarea
+        const allTasks = await api.getTasks();
+        const allProjects = await api.getProjects();
+        const allUsers = await api.getUsers();
+        
+        if (allTasks.data && allProjects.data && allUsers.data) {
+          persistenceService.saveBackup(allUsers.data, allProjects.data, allTasks.data);
+        }
+
         showToast(isEdit ? "Protocol refined." : "Assignment initialized.", "success");
         navigate('/tasks');
       } else {
@@ -200,6 +215,27 @@ const TaskForm: React.FC = () => {
           </PrimaryButton>
         </div>
       </form>
+
+      {/* Sección de Evidencias */}
+      <div className="mt-10">
+        <EvidenceManager
+          taskId={formData.id || tempTaskId}
+          attachments={formData.attachments || []}
+          userId={user?.id || ''}
+          onAddAttachment={(attachment) => {
+            setFormData({
+              ...formData,
+              attachments: [...(formData.attachments || []), attachment]
+            });
+          }}
+          onRemoveAttachment={(attachmentId) => {
+            setFormData({
+              ...formData,
+              attachments: (formData.attachments || []).filter(a => a.id !== attachmentId)
+            });
+          }}
+        />
+      </div>
     </div>
   );
 };

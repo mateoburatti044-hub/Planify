@@ -2,6 +2,19 @@
 import { server } from '../backend_server';
 import { db } from '../database';
 import { APIResponse, User, Project, Task, Notification } from '../types';
+import { persistenceService } from './persistenceService';
+
+// Función auxiliar para guardar backup automático
+const autoBackup = async () => {
+  try {
+    const users = await db.getAll<User>('users');
+    const projects = await db.getAll<Project>('projects');
+    const tasks = await db.getAll<Task>('tasks');
+    persistenceService.saveBackup(users, projects, tasks);
+  } catch (err) {
+    console.error('Error en backup automático:', err);
+  }
+};
 
 export const api = {
   login: async (email: string, password?: string): Promise<APIResponse<{ user: User, token: string }>> => {
@@ -50,6 +63,7 @@ export const api = {
   createProject: async (p: any): Promise<APIResponse<Project>> => {
     const np = { ...p, id: `p-${Date.now()}`, createdAt: new Date().toISOString() };
     await db.put('projects', np);
+    await autoBackup();
     return { data: np, status: 201 };
   },
 
@@ -58,11 +72,13 @@ export const api = {
     if (!ex) return { status: 404, error: "Cannot update: Project not found." };
     const up = { ...ex, ...p, updatedAt: new Date().toISOString() };
     await db.put('projects', up);
+    await autoBackup();
     return { data: up, status: 200 };
   },
 
   deleteProject: async (id: string): Promise<APIResponse<void>> => {
     await db.delete('projects', id);
+    await autoBackup();
     return { status: 204 };
   },
 
@@ -80,6 +96,7 @@ export const api = {
   createTask: async (t: any): Promise<APIResponse<Task>> => {
     const nt = { ...t, id: `t-${Date.now()}`, createdAt: new Date().toISOString() };
     await db.put('tasks', nt);
+    await autoBackup();
     return { data: nt, status: 201 };
   },
 
@@ -88,11 +105,13 @@ export const api = {
     if (!ex) return { status: 404, error: "Cannot update: Task not found." };
     const up = { ...ex, ...t, updatedAt: new Date().toISOString() };
     await db.put('tasks', up);
+    await autoBackup();
     return { data: up, status: 200 };
   },
 
   deleteTask: async (id: string): Promise<APIResponse<void>> => {
     await db.delete('tasks', id);
+    await autoBackup();
     return { status: 204 };
   },
 
